@@ -46,7 +46,7 @@ def openmailbox(inmailboxpath, outmailboxpath):
     """ Open a mailbox (maildir) at the given path and cycle
     on all the given emails.
     """
-    # If Factory = mailbox.MaildirMessage or rfc822.Message  any update moves the email in /new from /cur
+    # If Factory = mailbox.MaildirMessage or rfc822.Message any update moves the email in /new from /cur
     # see > http://stackoverflow.com/a/13445253/1435167
     mbox = mailbox.Maildir(inmailboxpath, factory=None)
     # iterate all the emails in the hierarchy
@@ -72,41 +72,42 @@ def detach(msg, key, outmailboxpath, mbox):
     """
     print('-----')
     for part in msg.walk():
-            content_maintype = part.get_content_maintype()
-            if (content_maintype != 'text') & (content_maintype != 'multipart'):
-                filename = part.get_filename()
-                if options.verbose:
-                    print('   Content-Disposition  : ', part.get('Content-Disposition'))
-                    print('   maintytpe            : ',part.get_content_maintype())
-                print('    %s : %s' % (part.get_content_type(),filename))
-                outpath = outmailboxpath+key+'/'
-                if options.save_attach:
-                    try:
-                        os.makedirs(outpath)
-                    except OSError:
-                        if not os.path.isdir(outpath):
-                            raise
+        content_maintype = part.get_content_maintype()
+        if (content_maintype != 'text') & (content_maintype != 'multipart'):
+            filename = part.get_filename()
+            if options.verbose:
+                print('   Content-Disposition  : ', part.get('Content-Disposition'))
+                print('   maintytpe            : ',part.get_content_maintype())
+            print('    %s : %s' % (part.get_content_type(),filename))
+            outpath = outmailboxpath+key+'/'
+            if options.save_attach:
+                try:
+                    os.makedirs(outpath)
+                except OSError:
+                    if not os.path.isdir(outpath):
+                        raise
 
-                    if filename is None:
-                        import tempfile
-                        fp = tempfile.NamedTemporaryFile(dir=outpath,
-                                                         delete=False)
-                        filename = os.path.basename(fp.name)
-                        print("Will save in {}".format(fp.name))
-                    else:
-                        fp = open(outpath+filename, 'wb')
-                    fp.write(part.get_payload(decode=1) or "")
-                    fp.close()
-                outmessage = '    ATTACHMENT=%s\n    moved to\n    OUTPATH=%s' %(filename,outpath[len(OUTPATH):]+filename)
-                if options.del_attach:
-                    # rewrite header and delete attachment in payload
-                    tmp = [part.__delitem__(h) for h in part.keys()]
-                    part.set_payload(outmessage)
-                    part.set_param('Content-Type', 'text/html; charset=ISO-8859-1')
-                    part.set_param('Content-Disposition', 'inline')
-                    mbox.__setitem__(key, msg)
-                print(outmessage)
-                print('-----')
+                if filename is None:
+                    import tempfile
+                    fp = tempfile.NamedTemporaryFile(dir=outpath,
+                                                     delete=False)
+                    filename = os.path.basename(fp.name)
+                    print("Will save in {}".format(fp.name))
+                else:
+                    fp = open(outpath+filename, 'wb')
+                fp.write(part.get_payload(decode=1) or "")
+                fp.close()
+            outmessage = '    ATTACHMENT=%s\n    moved to\n    OUTPATH=%s' %(filename,outpath[len(OUTPATH):]+filename)
+            if options.del_attach:
+                # rewrite header and delete attachment in payload
+                tmp = [part.__delitem__(h) for h in part.keys()]
+                part.set_payload(outmessage)
+                part.set_param('Content-Type', 'text/html; charset=ISO-8859-1')
+                part.set_param('Content-Disposition', 'inline')
+                mbox.__setitem__(key, msg)
+            print(outmessage)
+            print('-----')
+
 
 # Recreate flat IMAP folder structure as directory structure
 # WARNING: If foder name contains '.' it will changed to os.sep and it will create a new subfolder!!!
