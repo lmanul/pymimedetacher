@@ -40,9 +40,8 @@ print('%20s : %s' % ('verbose', options.save_attach))
 def mylistdir(directory):
     """A specialized version of os.listdir() that ignores files that
     start with a leading period."""
-    filelist = os.listdir(directory)
-    return [x for x in filelist
-            if not (x.startswith('.'))]
+    return [x for x in os.listdir(directory)
+            if not x.startswith('.')]
 
 def openmailbox(inmailboxpath,outmailboxpath):
     """ Open a mailbox (maildir) at the given path and cycle
@@ -58,11 +57,11 @@ def openmailbox(inmailboxpath,outmailboxpath):
         # if 'alternative' in msg.get_content_type():
         # if msg.is_multipart():
 
-        print('Key          : ',key)
-        print('Subject      : ',msg.get('Subject'))
+        print('Key          : ', key)
+        print('Subject      : ', msg.get('Subject'))
         if options.verbose:
-            print('Multip.      : ',msg.is_multipart())
-            print('Content-Type : ',msg.get('Content-Type'))
+            print('Multip.      : ', msg.is_multipart())
+            print('Content-Type : ', msg.get('Content-Type'))
             print('Parts        : ')
         detach(msg, key, outmailboxpath, mbox)
         print('='*20)
@@ -104,8 +103,8 @@ def detach(msg, key, outmailboxpath, mbox):
                     # rewrite header and delete attachment in payload
                     tmp = [part.__delitem__(h) for h in part.keys()]
                     part.set_payload(outmessage)
-                    part.set_param('Content-Type','text/html; charset=ISO-8859-1')
-                    part.set_param('Content-Disposition','inline')
+                    part.set_param('Content-Type', 'text/html; charset=ISO-8859-1')
+                    part.set_param('Content-Disposition', 'inline')
                     mbox.__setitem__(key, msg)
                 print(outmessage)
                 print('-----')
@@ -113,16 +112,16 @@ def detach(msg, key, outmailboxpath, mbox):
 # Recreate flat IMAP folder structure as directory structure
 # WARNING: If foder name contains '.' it will changed to os.sep and it will creare a new subfolder!!!
 for folder in mylistdir(PATH):
-    folderpath = OUTPATH+folder.replace('.',os.sep)+os.sep
+    folderpath = OUTPATH+folder.replace('.', os.sep)+os.sep
     try:
         os.makedirs(folderpath)
     except OSError:
         if not os.path.isdir(folderpath):
             raise
     print()
-    print('Opening mailbox:',PATH+os.sep+folder)
-    print('  Output folder: ',folderpath)
+    print('Opening mailbox:', PATH+os.sep+folder)
+    print('  Output folder: ', folderpath)
     print()
     print('='*20)
-    openmailbox(PATH+os.sep+folder,folderpath)
+    openmailbox(PATH+os.sep+folder, folderpath)
     print(40*'*')
