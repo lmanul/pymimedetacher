@@ -34,18 +34,17 @@ print('%20s : %s' % ('delete attachment', options.del_attach))
 print('%20s : %s' % ('save attachment', options.save_attach))
 print('%20s : %s' % ('verbose', options.save_attach))
 # Useful links:
-# - MIME structure :Parsing email using Python part 2,  http://blog.magiksys.net/parsing-email-using-python-content
+# - MIME structure: Parsing email using Python part 2,  http://blog.magiksys.net/parsing-email-using-python-content
 # - Parse Multi-Part Email with Sub-parts using Python, http://stackoverflow.com/a/4825114/1435167
 
 def mylistdir(directory):
     """A specialized version of os.listdir() that ignores files that
     start with a leading period."""
-    return [x for x in os.listdir(directory)
-            if not x.startswith('.')]
+    return [x for x in os.listdir(directory) if not x.startswith('.')]
 
-def openmailbox(inmailboxpath,outmailboxpath):
+def openmailbox(inmailboxpath, outmailboxpath):
     """ Open a mailbox (maildir) at the given path and cycle
-    on all te given emails.
+    on all the given emails.
     """
     # If Factory = mailbox.MaildirMessage or rfc822.Message  any update moves the email in /new from /cur
     # see > http://stackoverflow.com/a/13445253/1435167
@@ -110,9 +109,9 @@ def detach(msg, key, outmailboxpath, mbox):
                 print('-----')
 
 # Recreate flat IMAP folder structure as directory structure
-# WARNING: If foder name contains '.' it will changed to os.sep and it will creare a new subfolder!!!
+# WARNING: If foder name contains '.' it will changed to os.sep and it will create a new subfolder!!!
 for folder in mylistdir(PATH):
-    folderpath = OUTPATH+folder.replace('.', os.sep)+os.sep
+    folderpath = os.path.join(OUTPATH, folder.replace('.', os.sep))
     try:
         os.makedirs(folderpath)
     except OSError:
@@ -123,5 +122,5 @@ for folder in mylistdir(PATH):
     print('  Output folder: ', folderpath)
     print()
     print('='*20)
-    openmailbox(PATH+os.sep+folder, folderpath)
+    openmailbox(os.path.join(PATH, folder), folderpath)
     print(40*'*')
