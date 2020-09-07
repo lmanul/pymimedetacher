@@ -5,16 +5,16 @@ import os
 import optparse
 
 # Input path with (Courier) maildir data
-PATH = os.path.expanduser('~/.mail')
+DEFAULT_PATH = os.path.expanduser('~/.mail')
 # Output path to store the attachments
-OUTPATH = os.path.expanduser('~/detachments/')+PATH.split(os.sep)[-1] # the idea is to have an output folder per account
+DEFAULT_OUTPATH = os.path.expanduser('~/detachments/')+DEFAULT_PATH.split(os.sep)[-1] # the idea is to have an output folder per account
 
 parser = optparse.OptionParser()
 
 parser.add_option('-i', '--input', action="store", dest="PATH",
-                  help="input maildir path to parse", default=PATH)
+                  help="input maildir path to parse", default=DEFAULT_PATH)
 parser.add_option('-o', '--output', action="store", dest="OUTPATH",
-                  help="output path to store the attachments", default=OUTPATH)
+                  help="output path to store the attachments", default=DEFAULT_OUTPATH)
 parser.add_option('-d', '--delete-attachment', action="store_true",
                   dest="del_attach", help="delete the attachments", default=False)
 parser.add_option('-s', '--save_attachment', action="store_true",
@@ -25,7 +25,7 @@ parser.add_option('-v', '--verbose', action="store_true",
 options, args = parser.parse_args()
 
 PATH   = os.path.expanduser(options.PATH)
-OUPATH = os.path.expanduser(options.OUTPATH)
+OUTPATH = os.path.expanduser(options.OUTPATH)
 
 print('Options :')
 print('%20s : %s' % ('Mailbox Path', PATH))
@@ -78,7 +78,7 @@ def detach(msg, key, outmailboxpath, mbox):
             if options.verbose:
                 print('   Content-Disposition  : ', part.get('Content-Disposition'))
                 print('   maintytpe            : ',part.get_content_maintype())
-            print('    %s : %s' % (part.get_content_type(),filename))
+            print('    %s : %s' % (part.get_content_type(), filename))
             outpath = outmailboxpath+key+'/'
             if options.save_attach:
                 try:
@@ -112,16 +112,20 @@ def detach(msg, key, outmailboxpath, mbox):
 # Recreate flat IMAP folder structure as directory structure
 # WARNING: If foder name contains '.' it will changed to os.sep and it will create a new subfolder!!!
 for folder in mylistdir(PATH):
+    print("Folder path " + folder)
     folderpath = os.path.join(OUTPATH, folder.replace('.', os.sep))
+    print("And then " + folderpath)
+    mailbox_to_open = os.path.join(PATH, folder)
     try:
         os.makedirs(folderpath)
     except OSError:
         if not os.path.isdir(folderpath):
             raise
     print()
-    print('Opening mailbox:', os.path.join(PATH, folder))
+    print('Opening mailbox:', mailbox_to_open)
     print('  Output folder: ', folderpath)
     print()
     print('='*20)
-    openmailbox(os.path.join(PATH, folder), folderpath)
+    print("Opening")
+    openmailbox(mailbox_to_open, folderpath)
     print(40*'*')
