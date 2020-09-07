@@ -118,7 +118,7 @@ for folder in mylistdir(PATH):
         if not os.path.isdir(folderpath):
             raise
     print()
-    print('Opening mailbox:', PATH+os.sep+folder)
+    print('Opening mailbox:', os.path.join(PATH, folder))
     print('  Output folder: ', folderpath)
     print()
     print('='*20)
