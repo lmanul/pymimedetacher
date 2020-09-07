@@ -27,12 +27,12 @@ options, args = parser.parse_args()
 PATH   = os.path.expanduser(options.PATH)
 OUPATH = os.path.expanduser(options.OUTPATH)
 
-print 'Options :'
-print '%20s : %s' % ('Mailbox Path', PATH)
-print '%20s : %s' % ('Output Path ', OUTPATH)
-print '%20s : %s' % ('delete attachment', options.del_attach)
-print '%20s : %s' % ('save attachment', options.save_attach)
-print '%20s : %s' % ('verbose', options.save_attach)
+print('Options :')
+print('%20s : %s' % ('Mailbox Path', PATH))
+print('%20s : %s' % ('Output Path ', OUTPATH))
+print('%20s : %s' % ('delete attachment', options.del_attach))
+print('%20s : %s' % ('save attachment', options.save_attach))
+print('%20s : %s' % ('verbose', options.save_attach))
 # Useful links:
 # - MIME structure :Parsing email using Python part 2,  http://blog.magiksys.net/parsing-email-using-python-content
 # - Parse Multi-Part Email with Sub-parts using Python, http://stackoverflow.com/a/4825114/1435167
@@ -58,29 +58,29 @@ def openmailbox(inmailboxpath,outmailboxpath):
         # if 'alternative' in msg.get_content_type():
         # if msg.is_multipart():
 
-        print 'Key          : ',key
-        print 'Subject      : ',msg.get('Subject')
+        print('Key          : ',key)
+        print('Subject      : ',msg.get('Subject'))
         if options.verbose:
-            print 'Multip.      : ',msg.is_multipart()
-            print 'Content-Type : ',msg.get('Content-Type')
-            print 'Parts        : '
+            print('Multip.      : ',msg.is_multipart())
+            print('Content-Type : ',msg.get('Content-Type'))
+            print('Parts        : ')
         detach(msg, key, outmailboxpath, mbox)
-        print '='*20
+        print('='*20)
 
 def detach(msg, key, outmailboxpath, mbox):
     """ Cycle all the part of message,
     detach all the not text or multipart content type to outmailboxpath
     delete the header and rewrite is as a text inline message log.
     """
-    print '-----'
+    print('-----')
     for part in msg.walk():
             content_maintype = part.get_content_maintype()
             if (content_maintype != 'text') & (content_maintype != 'multipart'):
                 filename = part.get_filename()
                 if options.verbose:
-                    print '   Content-Disposition  : ', part.get('Content-Disposition')
-                    print '   maintytpe            : ',part.get_content_maintype()
-                print '    %s : %s' % (part.get_content_type(),filename)
+                    print('   Content-Disposition  : ', part.get('Content-Disposition'))
+                    print('   maintytpe            : ',part.get_content_maintype())
+                print('    %s : %s' % (part.get_content_type(),filename))
                 outpath = outmailboxpath+key+'/'
                 if options.save_attach:
                     try:
@@ -107,8 +107,8 @@ def detach(msg, key, outmailboxpath, mbox):
                     part.set_param('Content-Type','text/html; charset=ISO-8859-1')
                     part.set_param('Content-Disposition','inline')
                     mbox.__setitem__(key, msg)
-                print outmessage
-                print '-----'
+                print(outmessage)
+                print('-----')
 
 # Recreate flat IMAP folder structure as directory structure
 # WARNING: If foder name contains '.' it will changed to os.sep and it will creare a new subfolder!!!
@@ -119,10 +119,10 @@ for folder in mylistdir(PATH):
     except OSError:
         if not os.path.isdir(folderpath):
             raise
-    print
-    print 'Opening mailbox:',PATH+os.sep+folder
-    print '  Output folder: ',folderpath
-    print
-    print '='*20
+    print()
+    print('Opening mailbox:',PATH+os.sep+folder)
+    print('  Output folder: ',folderpath)
+    print()
+    print('='*20)
     openmailbox(PATH+os.sep+folder,folderpath)
-    print 40*'*'
+    print(40*'*')
