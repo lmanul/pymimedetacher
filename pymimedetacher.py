@@ -112,9 +112,7 @@ def detach(msg, key, outmailboxpath, mbox):
 # Recreate flat IMAP folder structure as directory structure
 # WARNING: If foder name contains '.' it will changed to os.sep and it will create a new subfolder!!!
 for folder in mylistdir(PATH):
-    print("Folder path " + folder)
     folderpath = os.path.join(OUTPATH, folder.replace('.', os.sep))
-    print("And then " + folderpath)
     mailbox_to_open = os.path.join(PATH, folder)
     try:
         os.makedirs(folderpath)
@@ -126,6 +124,5 @@ for folder in mylistdir(PATH):
     print('  Output folder: ', folderpath)
     print()
     print('='*20)
-    print("Opening")
     openmailbox(mailbox_to_open, folderpath)
     print(40*'*')
