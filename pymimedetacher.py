@@ -32,7 +32,7 @@ def mylistdir(directory):
     start with a leading period."""
     return [x for x in os.listdir(directory) if not x.startswith('.')]
 
-def openmailbox(inmailboxpath, outmailboxpath):
+def openmailbox(inmailboxpath, outmailboxpath, options):
     """ Open a mailbox (maildir) at the given path and cycle
     on all the given emails.
     """
@@ -52,10 +52,10 @@ def openmailbox(inmailboxpath, outmailboxpath):
             print('Multip.      : ', msg.is_multipart())
             print('Content-Type : ', msg.get('Content-Type'))
             print('Parts        : ')
-        detach(msg, key, outmailboxpath, mbox)
+        detach(msg, key, outmailboxpath, mbox, options)
         print('='*20)
 
-def detach(msg, key, outmailboxpath, mbox):
+def detach(msg, key, outmailboxpath, mbox, options):
     """ Cycle all the part of message,
     detach all the not text or multipart content type to outmailboxpath
     delete the header and rewrite is as a text inline message log.
@@ -98,6 +98,25 @@ def detach(msg, key, outmailboxpath, mbox):
             print(outmessage)
             print('-----')
 
+def process_one_maildir(mailbox_to_open, options):
+    folderpath = os.path.join(OUTPATH, mailbox_to_open.replace('.', os.sep))
+    try:
+        os.makedirs(folderpath)
+    except OSError:
+        if not os.path.isdir(folderpath):
+            raise
+    if "cur" not in os.listdir(mailbox_to_open):
+        print("The folder '" + mailbox_to_open + "' doesn't appear to be "
+              "a Maildir")
+        sys.exit(1)
+    print()
+    print('Opening mailbox:', mailbox_to_open)
+    print('  Output folder: ', folderpath)
+    print()
+    print('=' * 20)
+    openmailbox(mailbox_to_open, folderpath, options)
+    print(40 * '*')
+
 if __name__ == "__main__":
     OPTIONS, _ = parser.parse_args()
 
@@ -112,23 +131,7 @@ if __name__ == "__main__":
     print('%20s : %s' % ('verbose', OPTIONS.save_attach))
 
     # Recreate flat IMAP folder structure as directory structure
-    # WARNING: If foder name contains '.' it will changed to os.sep and it will create a new subfolder!!!
+    # WARNING: If a folder name contains '.' it will changed to os.sep
+    # and it will create a new subfolder!
     for folder in mylistdir(PATH):
-        folderpath = os.path.join(OUTPATH, folder.replace('.', os.sep))
-        mailbox_to_open = os.path.join(PATH, folder)
-        try:
-            os.makedirs(folderpath)
-        except OSError:
-            if not os.path.isdir(folderpath):
-                raise
-        if "cur" not in os.listdir(mailbox_to_open):
-            print("The folder '" + mailbox_to_open + "' doesn't appear to be "
-                  "a Maildir")
-            sys.exit(1)
-        print()
-        print('Opening mailbox:', mailbox_to_open)
-        print('  Output folder: ', folderpath)
-        print()
-        print('=' * 20)
-        openmailbox(mailbox_to_open, folderpath)
-        print(40 * '*')
+        process_one_maildir(os.path.join(PATH, folder), OPTIONS)
