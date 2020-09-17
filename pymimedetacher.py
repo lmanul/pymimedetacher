@@ -3,11 +3,12 @@
 import mailbox
 import os
 import optparse
+import sys
 
-# Input path with (Courier) maildir data
+# Input path with maildir data.
 DEFAULT_PATH = os.path.expanduser('~/.mail')
-# Output path to store the attachments
-DEFAULT_OUTPATH = os.path.expanduser('~/detachments/')+DEFAULT_PATH.split(os.sep)[-1] # the idea is to have an output folder per account
+# Path to store the attachments. The idea is to have an output folder per account
+DEFAULT_OUTPATH = os.path.expanduser('~/detachments/') + DEFAULT_PATH.split(os.sep)[-1]
 
 parser = optparse.OptionParser()
 
@@ -22,17 +23,6 @@ parser.add_option('-s', '--save_attachment', action="store_true",
 parser.add_option('-v', '--verbose', action="store_true",
                   dest="verbose", help="verbose output", default=False)
 
-options, args = parser.parse_args()
-
-PATH   = os.path.expanduser(options.PATH)
-OUTPATH = os.path.expanduser(options.OUTPATH)
-
-print('Options :')
-print('%20s : %s' % ('Mailbox Path', PATH))
-print('%20s : %s' % ('Output Path ', OUTPATH))
-print('%20s : %s' % ('delete attachment', options.del_attach))
-print('%20s : %s' % ('save attachment', options.save_attach))
-print('%20s : %s' % ('verbose', options.save_attach))
 # Useful links:
 # - MIME structure: Parsing email using Python part 2,  http://blog.magiksys.net/parsing-email-using-python-content
 # - Parse Multi-Part Email with Sub-parts using Python, http://stackoverflow.com/a/4825114/1435167
@@ -108,21 +98,37 @@ def detach(msg, key, outmailboxpath, mbox):
             print(outmessage)
             print('-----')
 
+if __name__ == "__main__":
+    OPTIONS, _ = parser.parse_args()
 
-# Recreate flat IMAP folder structure as directory structure
-# WARNING: If foder name contains '.' it will changed to os.sep and it will create a new subfolder!!!
-for folder in mylistdir(PATH):
-    folderpath = os.path.join(OUTPATH, folder.replace('.', os.sep))
-    mailbox_to_open = os.path.join(PATH, folder)
-    try:
-        os.makedirs(folderpath)
-    except OSError:
-        if not os.path.isdir(folderpath):
-            raise
-    print()
-    print('Opening mailbox:', mailbox_to_open)
-    print('  Output folder: ', folderpath)
-    print()
-    print('='*20)
-    openmailbox(mailbox_to_open, folderpath)
-    print(40*'*')
+    PATH   = os.path.expanduser(OPTIONS.PATH)
+    OUTPATH = os.path.expanduser(OPTIONS.OUTPATH)
+
+    print('Options :')
+    print('%20s : %s' % ('Mailbox Path', PATH))
+    print('%20s : %s' % ('Output Path ', OUTPATH))
+    print('%20s : %s' % ('delete attachment', OPTIONS.del_attach))
+    print('%20s : %s' % ('save attachment', OPTIONS.save_attach))
+    print('%20s : %s' % ('verbose', OPTIONS.save_attach))
+
+    # Recreate flat IMAP folder structure as directory structure
+    # WARNING: If foder name contains '.' it will changed to os.sep and it will create a new subfolder!!!
+    for folder in mylistdir(PATH):
+        folderpath = os.path.join(OUTPATH, folder.replace('.', os.sep))
+        mailbox_to_open = os.path.join(PATH, folder)
+        try:
+            os.makedirs(folderpath)
+        except OSError:
+            if not os.path.isdir(folderpath):
+                raise
+        if "cur" not in os.listdir(mailbox_to_open):
+            print("The folder '" + mailbox_to_open + "' doesn't appear to be "
+                  "a Maildir")
+            sys.exit(1)
+        print()
+        print('Opening mailbox:', mailbox_to_open)
+        print('  Output folder: ', folderpath)
+        print()
+        print('=' * 20)
+        openmailbox(mailbox_to_open, folderpath)
+        print(40 * '*')
